@@ -1,0 +1,22 @@
+Before each one, reset chip by connecting pins
+
+1) To enable regular behavior:
+	sudo dfu-programmer atmega16u2 erase
+	sudo dfu-programmer atmega16u2 flash --suppress-bootloader-mem Arduino-usbserial.hex
+	sudo dfu-programmer atmega16u2 reset
+
+
+	//Long command
+	sudo dfu-programmer atmega16u2 erase;sudo dfu-programmer atmega16u2 flash --suppress-bootloader-mem Arduino-usbserial.hex;sudo dfu-programmer atmega16u2 reset
+	
+	Then plug cycle
+
+2) To enable keyboard:
+	sudo dfu-programmer atmega16u2 erase
+	sudo dfu-programmer atmega16u2 flash --debug 1 Arduino-keyboard-0.3.hex
+	sudo dfu-programmer atmega16u2 reset
+
+	//Long
+	sudo dfu-programmer atmega16u2 erase;sudo dfu-programmer atmega16u2 flash --debug 1 Arduino-keyboard-0.3.hex;sudo dfu-programmer atmega16u2 reset
+
+	Then plug cycle
