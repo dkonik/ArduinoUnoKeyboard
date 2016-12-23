@@ -1,6 +1,3 @@
-// Notes
-// 1) 1000 is about the perfect value for holding a character down
-// 2) Figure out how to deal with initial delay for waiting if there is a combo coming
 
 // Amount of time to wait between sending keys when key is being held down
 // in micros
@@ -10,7 +7,7 @@ const unsigned long PAUSE_AFTER_PRESS = 400000;
 // The amount of time to wait until sending character from initial
 // press. Don't want this to be too quick in case there is a combo
 // which is coming up
-const uint16_t INITIAL_HOLDOFF = 15000;
+const unsigned long INITIAL_HOLDOFF = 25000;
 const unsigned NUM_FINGERS = 10;
 
 bool first_time = false;
@@ -35,33 +32,27 @@ void setup() {
   delay(200);
 }
 
-uint8_t val1 = 0, val2 = 0, val3 = 0, val4 = 0;
-uint8_t val5 = 0, val6 = 0, val7 = 0, val8 = 0;
+// Button values will be stored here
+uint8_t button_vals[NUM_FINGERS];
 // Used to store value of the current press in each loop
-uint8_t current_key = 0;
+uint16_t current_key = 0;
 // Used for the logic of what the last key press was
-uint8_t last_key = 0;
-// Used as the pauses for holding a key down, should
-// use value PAUSE_BETWEEN_HOLD, or for pause after initial
-// key press, should use PAUSE_AFTER_PRESS
-uint16_t pause = 0;
+uint16_t last_key = 0;
 
 //  the loop function runs over and over again forever
 void loop() {
-  val1 = digitalRead(2);
-  val2 = digitalRead(3);
-  val3 = digitalRead(4);
-  val4 = digitalRead(5);
-  val5 = digitalRead(6);
-  val6 = digitalRead(7);
-  val7 = digitalRead(8);
-  val8 = digitalRead(9);
+  for(int index = 0; index < NUM_FINGERS; ++index){
+    button_vals[index] = digitalRead(index+2);
+  }
 
-  current_key = (val1 << 7) | (val2 << 6) | (val3 << 5) | (val4 << 4)
-                | (val5 << 3) | (val6 << 2) | (val7 << 1) | val8;
+  current_key = 0;
+  for(int index = NUM_FINGERS - 1; index >= 0; --index){
+    current_key = current_key | ((button_vals[NUM_FINGERS-index-1]
+     << index));
+  }
 
   //No key is being pushed
-  if(current_key == 0b00000000){
+  if(current_key == 0){
     last_key = 0b00000000;
     time = micros();
     return;
@@ -114,11 +105,11 @@ void send_key(){
   }
   // "Regular" characters
   else{
-    if(current_key == 0b00010000){
+    if(current_key == 0b0001000000){
       buf[2] = 0b00010101;
       Serial.write(buf, 8);
     }
-    if(current_key == 0b00011000){
+    if(current_key == 0b0001001000){
       buf[2] = 0b00010110;
       Serial.write(buf, 8);
     }
