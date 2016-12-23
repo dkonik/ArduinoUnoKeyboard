@@ -3,13 +3,18 @@
 // 2) Figure out how to deal with initial delay for waiting if there is a combo coming
 
 // Amount of time to wait between sending keys when key is being held down
-const uint16_t PAUSE_BETWEEN_HOLD = 1000;
+// in micros
+const unsigned long PAUSE_BETWEEN_HOLD = 25000;
 // Amount of time to wait after sending first key before sending a bunch more
-const uint16_t PAUSE_AFTER_PRESS = 3000;
+const unsigned long PAUSE_AFTER_PRESS = 500000;
 // The amount of time to wait until sending character from initial
 // press. Don't want this to be too quick in case there is a combo
 // which is coming up
-const uint16_t INITIAL_HOLDOFF = 100;
+const uint16_t INITIAL_HOLDOFF = 1000;
+
+bool first_time = false;
+
+unsigned long time;
 
 // CHARACTER COMBO DEFINITIONS **********************************
 const uint8_t TAB = 0b01000000;
@@ -57,7 +62,7 @@ void loop() {
   //No key is being pushed
   if(current_key == 0b00000000){
     last_key = 0b00000000;
-    pause = 0;
+    time = micros();
     return;
   }
 
@@ -77,27 +82,25 @@ void loop() {
 void press_key(){
   //Has been holding key down
   if(last_key == current_key){
-    //If the small pause after initial press is over
-    if(pause == (PAUSE_AFTER_PRESS - INITIAL_HOLDOFF)){
-      --pause;
-      send_key();
-    } 
     //Wait after hold
-    else if(pause > 0){
-      --pause;
-    } 
-    //Send it
-    else{
-      pause = PAUSE_BETWEEN_HOLD;
-      send_key();
+    if(micros() < time){
+      return;
+    }
+    if(first_time){
+      time = micros() + PAUSE_AFTER_PRESS;
+      first_time = false;
+    } else{
+      time = micros() + PAUSE_BETWEEN_HOLD; 
     }
   }
   else{
     // Don't send character immediately after push as there could
     // be a possible combo coming up, so wait
-    pause = PAUSE_AFTER_PRESS;
+    time = micros() + INITIAL_HOLDOFF;
+    first_time = true;
     return;
   }
+  send_key();
 }
 
 //This function actually figures out what key to push
@@ -112,6 +115,10 @@ void send_key(){
   else{
     if(current_key == 0b00010000){
       buf[2] = 0b00010101;
+      Serial.write(buf, 8);
+    }
+    if(current_key == 0b00011000){
+      buf[2] = 0b00010110;
       Serial.write(buf, 8);
     }
   }
