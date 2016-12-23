@@ -12,6 +12,8 @@ const unsigned long PAUSE_AFTER_PRESS = 400000;
 // press. Don't want this to be too quick in case there is a combo
 // which is coming up
 const unsigned long INITIAL_HOLDOFF = 35000;
+
+const unsigned long HOLDOFF_BETWEEN_COMBOS = 15000;
 const unsigned NUM_FINGERS = 10;
 
 bool first_time = false;
@@ -125,7 +127,7 @@ uint8_t button_vals[NUM_FINGERS];
 uint16_t current_key = 0;
 // Used for the logic of what the last key press was
 uint16_t last_key = 0;
-
+unsigned remove_index = 2;
 //  the loop function runs over and over again forever
 void loop() {
   for(int index = 0; index < NUM_FINGERS; ++index){
@@ -138,11 +140,31 @@ void loop() {
      << index));
   }
 
+  remove_index = 2;
   //No key is being pushed
   if(current_key == 0){
+    if(last_key != 0){
+      release_all_keys();
+    }
     last_key = 0b00000000;
     time = micros();
     return;
+  }
+
+  //Asynchronous characters
+  if((FUNCTION & current_key) == FUNCTION){
+    // TODO: Figure out function key
+  } 
+  else{
+    if((CTRL & current_key) == CTRL){
+      buf[remove_index++] = CTRL_VAL;
+    }
+    if((SHIFT & current_key) == SHIFT){
+      buf[remove_index++] = SHIFT_VAL;
+    }
+    if((ALT & current_key) == ALT){
+      buf[remove_index++] = ALT_VAL;
+    }
   }
 
   press_key();
@@ -184,22 +206,7 @@ void press_key(){
 
 //This function actually figures out what key to push
 void send_key(){
-  unsigned index = 2;
-  //Asynchronous characters
-  if((FUNCTION & current_key) == FUNCTION){
-    // TODO: Figure out function key
-  } 
-  else{
-    if((CTRL & current_key) == CTRL){
-      buf[index++] = CTRL_VAL;
-    }
-    if((SHIFT & current_key) == SHIFT){
-      buf[index++] = SHIFT_VAL;
-    }
-    if((ALT & current_key) == ALT){
-      buf[index++] = ALT_VAL;
-    }
-  }
+  unsigned index = remove_index;
   //Remove the ctrl, shift, and alt (or function) characters
   uint16_t current_key_removed = current_key & 0b0111101110;
   if(current_key_removed == a){
@@ -319,7 +326,7 @@ void send_key(){
 void release_all_keys() 
 {
   buf[0] = 0;
-  for(unsigned index = 2; index < 8; ++index){
+  for(unsigned index = remove_index; index < 8; ++index){
     buf[index] = 0;
   }
   Serial.write(buf, 8); //  Release key  
