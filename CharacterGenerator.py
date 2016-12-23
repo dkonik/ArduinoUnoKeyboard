@@ -6,7 +6,7 @@ def main():
 	chars["TAB"] = 					"0b0100000000"
 	chars["SPACE"] = 				"0b0010000000"
 	chars["SPECIAL_ACTIVATOR"] = 	"0b0000100000"
-	chars["FUNCTION"] = 			"0b0000010000"
+	chars["ALT"] = 					"0b0000010000"
 	chars["ENTER"] = 				"0b0000000100"
 	chars["BACK_SPACE"] = 			"0b0000000010"
 	chars["CTRL"] = 				"0b0000000001"
@@ -40,8 +40,17 @@ def main():
 	chars["q"] = 					"0b0110000100"
 	chars["z"] = 					"0b0010000110"
 
+	# Special case, shift+alt+ctrl == function button, maybe thing of better
+	# way to do this
+	chars["FUNCTION"] =				"0b1000010001"
+
 	# Special Characters (must be used with left thumb down)
 	chars["ESCAPE"] = 				"0b0011101100"
+	chars["PERIOD"] = 				"0b0000101000"
+	chars["COMMA"] = 				"0b0000100100"
+	chars["GRTR_THAN"] = 			"0b1000101000"
+	chars["LESS_THAN"] = 			"0b0000100100"
+
 	
 
 	for k,v in chars.iteritems():
