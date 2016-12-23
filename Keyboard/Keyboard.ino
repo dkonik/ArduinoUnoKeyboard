@@ -6,11 +6,12 @@
 // in micros
 const unsigned long PAUSE_BETWEEN_HOLD = 25000;
 // Amount of time to wait after sending first key before sending a bunch more
-const unsigned long PAUSE_AFTER_PRESS = 500000;
+const unsigned long PAUSE_AFTER_PRESS = 400000;
 // The amount of time to wait until sending character from initial
 // press. Don't want this to be too quick in case there is a combo
 // which is coming up
-const uint16_t INITIAL_HOLDOFF = 1000;
+const uint16_t INITIAL_HOLDOFF = 15000;
+const unsigned NUM_FINGERS = 10;
 
 bool first_time = false;
 
@@ -130,8 +131,8 @@ void send_key(){
 void release_all_keys() 
 {
   buf[0] = 0;
-  for(unsigned i = 2; i < 8; ++i){
-    buf[i] = 0;
+  for(unsigned index = 2; index < 8; ++index){
+    buf[index] = 0;
   }
   Serial.write(buf, 8); //  Release key  
 }
