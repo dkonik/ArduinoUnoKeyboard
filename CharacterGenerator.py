@@ -55,6 +55,26 @@ def main():
 	chars["DOWN"] = 				"0b0010100100"
 	chars["LEFT"] = 				"0b0011100000"
 	chars["RIGHT"] =				"0b0000101100"
+
+	# Colon is shifted version
+	chars["SEMICOLON"] =			"0b0000100010"
+	chars["OPENING_CURLY"] = 		"0b0100100000"
+	chars["CLOSING_CURLY"] = 		"0b0010100000"
+	chars["QUOTE"] = 				"0b0000100110"
+	chars["SLASH"] =				"0b0110100000"
+
+	# Numbers
+	chars["ZERO"] = 				"0b0111100000"
+	chars["ONE"] = 					"0b0110101000"
+	chars["TWO"] =					"0b0110100100"
+	chars["THREE"] = 				"0b0110100010"
+	chars["FOUR"] = 				"0b0011101000"
+	chars["FIVE"] =					"0b0011100100"
+	chars["SIX"] = 					"0b0011100010"
+	chars["SEVEN"] =				"0b0001101100"
+	chars["EIGHT"] = 				"0b0001101010"
+	chars["NINE"] = 				"0b0000101110"
+
 	
 
 	for k,v in chars.iteritems():

@@ -11,7 +11,7 @@ const unsigned long PAUSE_AFTER_PRESS = 400000;
 // The amount of time to wait until sending character from initial
 // press. Don't want this to be too quick in case there is a combo
 // which is coming up
-const unsigned long INITIAL_HOLDOFF = 35000;
+const unsigned long INITIAL_HOLDOFF = 55000;
 
 const unsigned long HOLDOFF_BETWEEN_COMBOS = 15000;
 const unsigned NUM_FINGERS = 10;
@@ -21,23 +21,38 @@ bool first_time = false;
 unsigned long time;
 
 // CHARACTER COMBO DEFINITIONS **********************************
+const uint16_t NINE = 0b0000101110;
+const uint16_t SLASH = 0b0110100000;
 const uint16_t CTRL = 0b0000000001;
 const uint16_t SHIFT = 0b1000000000;
 const uint16_t ENTER = 0b0001100000;
+const uint16_t TWO = 0b0110100100;
 const uint16_t UP = 0b0001101000;
 const uint16_t DOWN = 0b0010100100;
 const uint16_t LESS_THAN = 0b0000100100;
 const uint16_t BACK_SPACE = 0b0000000010;
+const uint16_t SEMICOLON = 0b0000100010;
+const uint16_t OPENING_CURLY = 0b0100100000;
+const uint16_t QUOTE = 0b0000100110;
+const uint16_t ONE = 0b0110101000;
 const uint16_t COMMA = 0b0000100100;
 const uint16_t TAB = 0b0100000000;
+const uint16_t EIGHT = 0b0001101010;
 const uint16_t LEFT = 0b0011100000;
 const uint16_t FUNCTION = 0b1000010001;
+const uint16_t SEVEN = 0b0001101100;
+const uint16_t SIX = 0b0011100010;
 const uint16_t SPACE = 0b0010000000;
 const uint16_t PERIOD = 0b0000101000;
+const uint16_t THREE = 0b0110100010;
+const uint16_t ZERO = 0b0111100000;
 const uint16_t RIGHT = 0b0000101100;
+const uint16_t FIVE = 0b0011100100;
+const uint16_t CLOSING_CURLY = 0b0010100000;
 const uint16_t ESCAPE = 0b0011101100;
 const uint16_t SPECIAL_ACTIVATOR = 0b0000100000;
 const uint16_t a = 0b0000000110;
+const uint16_t FOUR = 0b0011101000;
 const uint16_t c = 0b0010001000;
 const uint16_t b = 0b0011000010;
 const uint16_t e = 0b0001001000;
@@ -65,8 +80,6 @@ const uint16_t x = 0b0110000100;
 const uint16_t ALT = 0b0000010000;
 const uint16_t z = 0b0101001000;
 const uint16_t GRTR_THAN = 0b1000101000;
-
-
 // END CHARACTER COMBO DEFINITIONS ******************************
 
 // CHARACTER BUFFER VALUES **************************************
@@ -109,6 +122,21 @@ const uint8_t UP_VAL = 0x52;
 const uint8_t DOWN_VAL = 0x51;
 const uint8_t LEFT_VAL = 0x50;
 const uint8_t RIGHT_VAL = 0x4F;
+const uint8_t SEMICOLON_VAL = 0x33;
+const uint8_t OPENING_CURLY_VAL = 0x2F;
+const uint8_t CLOSING_CURLY_VAL = 0x30;
+const uint8_t QUOTE_VAL = 0x34;
+const uint8_t SLASH_VAL = 0x38;
+const uint8_t ZERO_VAL = 0x27;
+const uint8_t ONE_VAL = 0x1E;
+const uint8_t TWO_VAL = 0x1F;
+const uint8_t THREE_VAL = 0x20;
+const uint8_t FOUR_VAL = 0x21;
+const uint8_t FIVE_VAL = 0x22;
+const uint8_t SIX_VAL = 0x23;
+const uint8_t SEVEN_VAL = 0x24;
+const uint8_t EIGHT_VAL = 0x25;
+const uint8_t NINE_VAL = 0x26;
 // END CHARACTER BUFFER VALUES **********************************
 
 uint8_t buf[8] = { 0 }; /* Keyboard report buffer */
@@ -316,6 +344,51 @@ void send_key(){
   }
   else if(current_key_removed == RIGHT){
     buf[index++] = RIGHT_VAL;
+  }
+  else if(current_key_removed == SEMICOLON){
+    buf[index++] = SEMICOLON_VAL;
+  }
+  else if(current_key_removed == OPENING_CURLY){
+    buf[index++] = OPENING_CURLY_VAL;
+  }
+  else if(current_key_removed == CLOSING_CURLY){
+    buf[index++] = CLOSING_CURLY_VAL;
+  }
+  else if(current_key_removed == QUOTE){
+    buf[index++] = QUOTE_VAL;
+  }
+  else if(current_key_removed == SLASH){
+    buf[index++] = SLASH_VAL;
+  }
+  else if(current_key_removed == ZERO){
+    buf[index++] = ZERO_VAL;
+  }
+  else if(current_key_removed == ONE){
+    buf[index++] = ONE_VAL;
+  }
+  else if(current_key_removed == TWO){
+    buf[index++] = TWO_VAL;
+  }
+  else if(current_key_removed == THREE){
+    buf[index++] = THREE_VAL;
+  }
+  else if(current_key_removed == FOUR){
+    buf[index++] = FOUR_VAL;
+  }
+  else if(current_key_removed == FIVE){
+    buf[index++] = FIVE_VAL;
+  }
+  else if(current_key_removed == SIX){
+    buf[index++] = SIX_VAL;
+  }
+  else if(current_key_removed == SEVEN){
+    buf[index++] = SEVEN_VAL;
+  }
+  else if(current_key_removed == EIGHT){
+    buf[index++] = EIGHT_VAL;
+  }
+  else if(current_key_removed == NINE){
+    buf[index++] = NINE_VAL;
   }
   Serial.write(buf, 8);
 }
