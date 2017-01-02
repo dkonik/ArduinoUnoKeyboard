@@ -1,8 +1,7 @@
 #include "Keyboard.h"
 // TODO:
-// 1) Fix that shift,ctrl, and other asyncronous presses aren't always
-//    sent when pressed down
 // 2) Make it so that immediately after removing fingers from combo, key can't be pressed
+// 3) Make hashmap class to make updates easier?
 
 // Amount of time to wait between sending keys when key is being held down
 // in micros
@@ -143,7 +142,6 @@ void loop() {
   press_key();
   
   last_key = current_key;
-  Keyboard.releaseAll();
 }
 
 void press_key(){
@@ -177,155 +175,206 @@ void send_key(){
   uint16_t current_key_removed = current_key & 0b0111101110;
   if(current_key_removed == a){
     Keyboard.press('a');
+    Keyboard.release('a');
   }
   else if(current_key_removed == b){
     Keyboard.press('b');
+    Keyboard.release('b');
   }
   else if(current_key_removed == c){
     Keyboard.press('c');
+    Keyboard.release('c');
   }
   else if(current_key_removed == d){
     Keyboard.press('d');
+    Keyboard.release('d');
   }
   else if(current_key_removed == e){
     Keyboard.press('e');
+    Keyboard.release('e');
   }
   else if(current_key_removed == f){
     Keyboard.press('f');
+    Keyboard.release('f');
   }
   else if(current_key_removed == g){
     Keyboard.press('g');
+    Keyboard.release('g');
   }
   else if(current_key_removed == h){
     Keyboard.press('h');
+    Keyboard.release('h');
   }
   else if(current_key_removed == i){
     Keyboard.press('i');
+    Keyboard.release('i');
   }
   else if(current_key_removed == j){
     Keyboard.press('j');
+    Keyboard.release('j');
   }
   else if(current_key_removed == k){
     Keyboard.press('k');
+    Keyboard.release('k');
   }
   else if(current_key_removed == l){
     Keyboard.press('l');
+    Keyboard.release('l');
   }
   else if(current_key_removed == m){
     Keyboard.press('m');
+    Keyboard.release('m');
   }
   else if(current_key_removed == n){
     Keyboard.press('n');
+    Keyboard.release('n');
   }
   else if(current_key_removed == o){
     Keyboard.press('o');
+    Keyboard.release('o');
   }
   else if(current_key_removed == p){
     Keyboard.press('p');
+    Keyboard.release('p');
   }
   else if(current_key_removed == q){
     Keyboard.press('q');
+    Keyboard.release('q');
   }
   else if(current_key_removed == r){
     Keyboard.press('r');
+    Keyboard.release('r');
   }
   else if(current_key_removed == s){
     Keyboard.press('s');
+    Keyboard.release('s');
   }
   else if(current_key_removed == t){
     Keyboard.press('t');
+    Keyboard.release('t');
   }
   else if(current_key_removed == u){
     Keyboard.press('u');
+    Keyboard.release('u');
   }
   else if(current_key_removed == v){
     Keyboard.press('v');
+    Keyboard.release('v');
   }
   else if(current_key_removed == w){
     Keyboard.press('w');
+    Keyboard.release('w');
   }
   else if(current_key_removed == x){
     Keyboard.press('x');
+    Keyboard.release('x');
   }
   else if(current_key_removed == y){
     Keyboard.press('y');
+    Keyboard.release('y');
   }
   else if(current_key_removed == z){
     Keyboard.press('z');
+    Keyboard.release('z');
   }
   else if(current_key_removed == TAB){
     Keyboard.press(KEY_TAB);
+    Keyboard.release(KEY_TAB);
   } 
   else if(current_key_removed == SPACE){
     Keyboard.press(' ');
+    Keyboard.release(' ');
   }
   else if(current_key_removed == ENTER){
     Keyboard.press(KEY_RETURN);
+    Keyboard.release(KEY_RETURN);
   }
   else if(current_key_removed == BACK_SPACE){
     Keyboard.press(KEY_BACKSPACE);
+    Keyboard.release(KEY_BACKSPACE);
   }
   else if(current_key_removed == PERIOD){
     Keyboard.press('.');
+    Keyboard.release('.');
   }
   else if(current_key_removed == COMMA){
     Keyboard.press(',');
+    Keyboard.release(',');
   }
   else if(current_key_removed == DOWN){
     Keyboard.press(KEY_DOWN_ARROW);
+    Keyboard.release(KEY_DOWN_ARROW);
   }
   else if(current_key_removed == LEFT){
     Keyboard.press(KEY_LEFT_ARROW);
+    Keyboard.release(KEY_LEFT_ARROW);
   }
   else if(current_key_removed == UP){
     Keyboard.press(KEY_UP_ARROW);
+    Keyboard.release(KEY_UP_ARROW);
   }
   else if(current_key_removed == RIGHT){
     Keyboard.press(KEY_RIGHT_ARROW);
+    Keyboard.release(KEY_RIGHT_ARROW);
   }
   else if(current_key_removed == SEMICOLON){
     Keyboard.press(';');
+    Keyboard.release(';');
   }
   else if(current_key_removed == OPENING_CURLY){
     Keyboard.press('[');
+    Keyboard.release('[');
   }
   else if(current_key_removed == CLOSING_CURLY){
     Keyboard.press(']');
+    Keyboard.release(']');
   }
   else if(current_key_removed == QUOTE){
     Keyboard.press(39);
+    Keyboard.release(39);
   }
   else if(current_key_removed == SLASH){
     Keyboard.press(92);
+    Keyboard.release(92);
   }
   else if(current_key_removed == ZERO){
     Keyboard.press('0');
+    Keyboard.release('0');
   }
   else if(current_key_removed == ONE){
     Keyboard.press('1');
+    Keyboard.release('1');
   }
   else if(current_key_removed == TWO){
     Keyboard.press('2');
+    Keyboard.release('2');
   }
   else if(current_key_removed == THREE){
     Keyboard.press('3');
+    Keyboard.release('3');
   }
   else if(current_key_removed == FOUR){
     Keyboard.press('4');
+    Keyboard.release('4');
   }
   else if(current_key_removed == FIVE){
     Keyboard.press('5');
+    Keyboard.release('5');
   }
   else if(current_key_removed == SIX){
     Keyboard.press('6');
+    Keyboard.release('6');
   }
   else if(current_key_removed == SEVEN){
     Keyboard.press('7');
+    Keyboard.release('7');
   }
   else if(current_key_removed == EIGHT){
     Keyboard.press('8');
+    Keyboard.release('8');
   }
   else if(current_key_removed == NINE){
     Keyboard.press('9');
+    Keyboard.release('9');
   }
 }
