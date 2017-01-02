@@ -1,5 +1,6 @@
 #include <SPI.h>
 #include <avr/pgmspace.h>
+#include <Mouse.h>
 
 // Registers
 #define REG_Product_ID                           0x00
@@ -75,6 +76,8 @@ void setup() {
   dispRegisters();
   delay(100);
   initComplete=9;
+
+  Mouse.begin();
 
 }
 
@@ -218,21 +221,16 @@ int convTwosComp(int b){
   return b;
   }
   
-  void loop() {
+void loop() {
   currTime = millis();
-  
-  if(currTime > timer){    
-    Serial.println(testctr++);
-    timer = currTime + 500;
-    }
     
   if(movementflag){
-    Serial.print("x = ");
-    Serial.print( convTwosComp(xydat[0]) );
-    Serial.print(" | ");
-    Serial.print("y = ");
-    Serial.println( convTwosComp(xydat[1]) );
+//    Serial.print("x = ");
+//    Serial.print( convTwosComp(xydat[0]) );
+//    Serial.print(" | ");
+//    Serial.print("y = ");
+//    Serial.println( convTwosComp(xydat[1]) );
+    Mouse.move(convTwosComp(xydat[0], xydat[1], 0);
     movementflag=0;
     }
-    
-  }
+ }
