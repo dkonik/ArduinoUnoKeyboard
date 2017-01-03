@@ -32,11 +32,11 @@ const uint16_t DOWN = 0b0010100100;
 const uint16_t LESS_THAN = 0b0000100100;
 const uint16_t BACK_SPACE = 0b0000000010;
 const uint16_t SEMICOLON = 0b0000100010;
-const uint16_t OPENING_CURLY = 0b0100100000;
+const uint16_t OPENING_CURLY = 0b0100101000;
 const uint16_t QUOTE = 0b0000100110;
 const uint16_t ONE = 0b0110101000;
 const uint16_t COMMA = 0b0000100100;
-const uint16_t TAB = 0b0100000000;
+const uint16_t TAB = 0b0100100000;
 const uint16_t EIGHT = 0b0001101010;
 const uint16_t LEFT = 0b0011100000;
 const uint16_t FUNCTION = 0b1000010001;
@@ -48,7 +48,7 @@ const uint16_t THREE = 0b0110100010;
 const uint16_t ZERO = 0b0111100000;
 const uint16_t RIGHT = 0b0000101100;
 const uint16_t FIVE = 0b0011100100;
-const uint16_t CLOSING_CURLY = 0b0010100000;
+const uint16_t CLOSING_CURLY = 0b0100100100;;
 const uint16_t ESCAPE = 0b0011101100;
 const uint16_t SPECIAL_ACTIVATOR = 0b0000100000;
 const uint16_t a = 0b0000000110;
@@ -376,5 +376,9 @@ void send_key(){
   else if(current_key_removed == NINE){
     Keyboard.press('9');
     Keyboard.release('9');
+  }
+  else if(current_key_removed == ESCAPE){
+    Keyboard.press(177);
+    Keyboard.release(177);
   }
 }

@@ -53,9 +53,14 @@ byte initComplete=0;
 byte testctr=0;
 unsigned long currTime;
 unsigned long timer;
-volatile int xydat[2];
+volatile byte xydat[4];
+int16_t * x = (int16_t *) &xydat[0];
+int16_t * y = (int16_t *) &xydat[2];
 volatile byte movementflag=0;
 const int ncs = 10;
+
+int xCount = 0;
+int yCount = 0;
 
 extern const unsigned short firmware_length;
 extern const unsigned char firmware_data[];
@@ -180,10 +185,13 @@ void UpdatePointer(void){
   if(initComplete==9){
 
     digitalWrite(ncs,LOW);
-    xydat[0] = (int)adns_read_reg(REG_Delta_X_L);
-    xydat[1] = (int)adns_read_reg(REG_Delta_Y_L);
+    xydat[0] = (byte)adns_read_reg(REG_Delta_X_L);
+    xydat[1] = (byte)adns_read_reg(REG_Delta_X_H);
+    xydat[2] = (byte)adns_read_reg(REG_Delta_Y_L);
+    xydat[3] = (byte)adns_read_reg(REG_Delta_Y_H);
     digitalWrite(ncs,HIGH);     
-
+    xCount += convTwosComp(*x);
+    yCount += convTwosComp(*y);
     movementflag=1;
     }
   }
@@ -222,15 +230,16 @@ int convTwosComp(int b){
   }
   
 void loop() {
-  currTime = millis();
+ // currTime = millis();
     
   if(movementflag){
-//    Serial.print("x = ");
-//    Serial.print( convTwosComp(xydat[0]) );
-//    Serial.print(" | ");
-//    Serial.print("y = ");
-//    Serial.println( convTwosComp(xydat[1]) );
-    Mouse.move(convTwosComp(xydat[0], xydat[1], 0);
+    Serial.print("x = ");
+    Serial.print( convTwosComp(xydat[0]) );
+    Serial.print(" | ");
+    Serial.print("y = ");
+    Serial.println( convTwosComp(xydat[1]) );
+    Mouse.move(xCount, yCount, 0);
+    xCount = yCount = 0;
     movementflag=0;
     }
  }
