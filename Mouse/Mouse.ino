@@ -3,6 +3,10 @@
 #include <Mouse.h>
 #include <math.h>
 
+// TODO:
+// 1) Not important, but prediction of totally horizontal/vertical mouse movement so
+//    so that if a user tries to move mouse totally horizontally, it's not impossible
+
 // Registers
 #define REG_Product_ID                           0x00
 #define REG_Revision_ID                          0x01
@@ -243,10 +247,17 @@ void loop() {
     xydat[2] = (byte)adns_read_reg(REG_Delta_Y_L);
     xydat[3] = (byte)adns_read_reg(REG_Delta_Y_H);
     digitalWrite(ncs,HIGH);     
-    Mouse.move((*x), (*y), 0);
-    Serial.print(*x );
+    //Reduce sensitivity at higher speeds
+    if(abs(*x) != 1){
+      *x = *x / 2;
+    }
+    if(abs(*y) != 1){
+      *y = *y / 2;
+    }
+    Mouse.move(*x, *y, 0);
+    Serial.print(*x);
     Serial.print(" | ");
     Serial.print("y = ");
-    Serial.println( *y );
+    Serial.println(*y);
  }
  }
