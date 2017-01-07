@@ -1,6 +1,7 @@
 #include <SPI.h>
 #include <avr/pgmspace.h>
 #include <Mouse.h>
+#include <math.h>
 
 // Registers
 #define REG_Product_ID                           0x00
@@ -56,7 +57,7 @@ unsigned long timer;
 volatile byte xydat[4];
 int16_t * x = (int16_t *) &xydat[0];
 int16_t * y = (int16_t *) &xydat[2];
-volatile byte movementflag=0;
+volatile bool has_moved = false;
 const int ncs = 10;
 
 int xCount = 0;
@@ -182,19 +183,8 @@ void performStartup(void){
   }
 
 void UpdatePointer(void){
-  if(initComplete==9){
-
-    digitalWrite(ncs,LOW);
-    xydat[0] = (byte)adns_read_reg(REG_Delta_X_L);
-    xydat[1] = (byte)adns_read_reg(REG_Delta_X_H);
-    xydat[2] = (byte)adns_read_reg(REG_Delta_Y_L);
-    xydat[3] = (byte)adns_read_reg(REG_Delta_Y_H);
-    digitalWrite(ncs,HIGH);     
-    xCount += convTwosComp(*x);
-    yCount += convTwosComp(*y);
-    movementflag=1;
-    }
-  }
+  has_moved = true;
+}
 
 void dispRegisters(void){
   int oreg[7] = {
@@ -228,18 +218,35 @@ int convTwosComp(int b){
     }
   return b;
   }
+
+void burst_read(int* xy_data){
+  byte data[6];
+
+  adns_com_begin();
+
+  adns_write_reg(REG_Motion_Burst, REG_Motion_Burst);
+
+  delayMicroseconds(100); //Wait for one frame
+
+  
+  
+}
   
 void loop() {
  // currTime = millis();
-    
-  if(movementflag){
-    Serial.print("x = ");
-    Serial.print( convTwosComp(xydat[0]) );
+
+ if(has_moved){
+    has_moved = false;
+    digitalWrite(ncs,LOW);
+    xydat[0] = (byte)adns_read_reg(REG_Delta_X_L);
+    xydat[1] = (byte)adns_read_reg(REG_Delta_X_H);
+    xydat[2] = (byte)adns_read_reg(REG_Delta_Y_L);
+    xydat[3] = (byte)adns_read_reg(REG_Delta_Y_H);
+    digitalWrite(ncs,HIGH);     
+    Mouse.move((*x), (*y), 0);
+    Serial.print(*x );
     Serial.print(" | ");
     Serial.print("y = ");
-    Serial.println( convTwosComp(xydat[1]) );
-    Mouse.move(xCount, yCount, 0);
-    xCount = yCount = 0;
-    movementflag=0;
-    }
+    Serial.println( *y );
+ }
  }
