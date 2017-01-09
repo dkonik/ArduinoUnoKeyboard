@@ -54,18 +54,11 @@
 #define REG_SROM_Load_Burst                      0x62
 #define REG_Pixel_Burst                          0x64
 
-byte initComplete=0;
-byte testctr=0;
-unsigned long currTime;
-unsigned long timer;
 volatile byte xydat[4];
 int16_t * x = (int16_t *) &xydat[0];
 int16_t * y = (int16_t *) &xydat[2];
 volatile bool has_moved = false;
-const int ncs = 10;
-
-int xCount = 0;
-int yCount = 0;
+const int ncs = 12;
 
 extern const unsigned short firmware_length;
 extern const unsigned char firmware_data[];
@@ -75,7 +68,7 @@ void setup() {
   
   pinMode (ncs, OUTPUT);
   
-  attachInterrupt(digitalPinToInterrupt(2), UpdatePointer, FALLING);
+  attachInterrupt(digitalPinToInterrupt(1), UpdatePointer, FALLING);
   
   SPI.begin();
   SPI.setDataMode(SPI_MODE3);
@@ -85,7 +78,6 @@ void setup() {
   performStartup();  
   dispRegisters();
   delay(100);
-  initComplete=9;
 
   Mouse.begin();
 
@@ -214,15 +206,8 @@ void dispRegisters(void){
   digitalWrite(ncs,HIGH);
 }
 
-
-int convTwosComp(int b){
-  //Convert from 2's complement
-  if(b & 0x80){
-    b = -1 * ((b ^ 0xff) + 1);
-    }
-  return b;
-  }
-
+// As of now, this function is unecessary. But if performance is bad
+// then this can be used instead of reading individual registers
 void burst_read(int* xy_data){
   byte data[6];
 
@@ -230,15 +215,10 @@ void burst_read(int* xy_data){
 
   adns_write_reg(REG_Motion_Burst, REG_Motion_Burst);
 
-  delayMicroseconds(100); //Wait for one frame
-
-  
-  
+  delayMicroseconds(100); //Wait for one frame 
 }
   
 void loop() {
- // currTime = millis();
-
  if(has_moved){
     has_moved = false;
     digitalWrite(ncs,LOW);
