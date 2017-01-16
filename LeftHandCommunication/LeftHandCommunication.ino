@@ -6,7 +6,7 @@
 const int CE = 13;
 const int CSN = 12;
 const int IRQ = 2;
-char msg[2] = "hi";
+uint16_t msg = 1;
 
 // Args = [ce_pin, csn_pin]
 RF24 radio(CE, CSN);
@@ -23,7 +23,7 @@ void setup(void){
  
 void loop(void){
  if (digitalRead(button) == HIGH){
-   Serial.println("Sending shit");
-   radio.write(msg, 2);
+   radio.write(&msg, sizeof(msg));
+   ++msg;
  }
 }
