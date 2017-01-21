@@ -2,6 +2,8 @@
 #include <SPI.h>
 #include <avr/pgmspace.h>
 #include <Mouse.h>
+#include "nRF24L01.h"
+#include "RF24.h"
 
 // TODO:
 // 1) Not important, but prediction of totally horizontal/vertical mouse movement so
@@ -10,10 +12,12 @@
 // 3) Make hashmap class to make updates easier?
 
 //PIN DECLARATIONS:
-const uint8_t MOUSE_IRQ = 3, MOUSE_SS = 5, RADIO_CC = 12, RADIO_IRQ = 2, 
+const uint8_t MOUSE_IRQ = 3, MOUSE_SS = 5, RADIO_SS = 12, RADIO_IRQ = 2, 
               RADIO_CE = 13; //THE CE is for TX/RX
 //In order of pinky -> thumb
 const uint8_t FINGER_PINS[5] = {11,10,9,8,6};
+
+RF24 radio(RADIO_CE, RADIO_SS);
 
 // MOUSE STUFF *************************************************************
 // Registers
@@ -70,6 +74,23 @@ volatile bool has_moved = false;
 
 extern const unsigned short firmware_length;
 extern const unsigned char firmware_data[];
+
+// This is needed for the two hands to communicate
+const uint64_t pipe = 0xE8E8F0F0E1LL;
+
+uint8_t left_hand_fingers = 0;
+void check_radio(){
+  bool tx, fail, rx;
+  radio.whatHappened(tx, fail, rx);
+
+  // Will ignore fail and tx because we will never send
+  // from this hand
+
+  // Message was received
+  if(rx){
+    radio.read(&left_hand_fingers, sizeof(left_hand_fingers));
+  }
+}
 
 void adns_com_begin(){
   digitalWrite(MOUSE_SS, LOW);
@@ -166,6 +187,7 @@ void performStartup(void){
 
 
 void UpdatePointer(void){
+  //Serial.println("here");
   has_moved = true;
 }
 
@@ -281,10 +303,13 @@ const uint16_t RIGHT_CLICK = 0b0000000100;
 uint8_t buf[8] = { 0 }; /* Keyboard report buffer */
 
 
+  int foo = 0;
 // the setup function runs once when you press reset or power the board
 void setup() {
   //  initialize digital pin LED_BUILTIN as an output.
+  Serial.begin(9600);
   Keyboard.begin();
+  Mouse.begin();
   delay(200);
 
   //Mouse setup
@@ -292,12 +317,17 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(MOUSE_IRQ), UpdatePointer, FALLING);
   SPI.begin();
   SPI.setDataMode(SPI_MODE3);
-  SPI.setBitOrder(MSBFIRST);
-  SPI.setClockDivider(8);
+//  SPI.setBitOrder(MSBFIRST);
+//  SPI.setClockDivider(8);
   performStartup();  
   dispRegisters();
   delay(100);
-  Mouse.begin();
+
+  radio.begin(&foo);
+//  // args = [pipe#, pipe_address]
+//  radio.openReadingPipe(1, pipe);
+//  radio.startListening();
+//  attachInterrupt(digitalPinToInterrupt(RADIO_IRQ), check_radio, FALLING);
 }
 
 // Button values will be stored here
@@ -307,9 +337,9 @@ uint16_t current_key = 0;
 // Used for the logic of what the last key press was
 uint16_t last_key = 0;
 unsigned remove_index = 2;
-uint8_t left_hand_fingers = 0;
 
 void loop() {
+  Serial.println(foo);
   //Mouse movement
    if(has_moved){
     has_moved = false;
