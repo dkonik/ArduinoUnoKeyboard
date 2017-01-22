@@ -2,6 +2,7 @@
 #include <SPI.h>
 #include <avr/pgmspace.h>
 #include <Mouse.h>
+#include "DigitalIO.h"
 #include "nRF24L01.h"
 #include "RF24.h"
 
@@ -10,12 +11,15 @@
 //    so that if a user tries to move mouse totally horizontally, it's not impossible
 // 2) Make it so that immediately after removing fingers from combo, key can't be pressed
 // 3) Make hashmap class to make updates easier?
+// 4) Figure out the digital io thing
 
 //PIN DECLARATIONS:
 const uint8_t MOUSE_IRQ = 3, MOUSE_SS = 5, RADIO_SS = 12, RADIO_IRQ = 2, 
               RADIO_CE = 13; //THE CE is for TX/RX
 //In order of pinky -> thumb
 const uint8_t FINGER_PINS[5] = {11,10,9,8,6};
+
+SoftSPI<SOFT_SPI_MISO_PIN, SOFT_SPI_MOSI_PIN, SOFT_SPI_SCK_PIN, SPI_MODE> soft_spi;
 
 RF24 radio(RADIO_CE, RADIO_SS);
 
