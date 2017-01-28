@@ -4,10 +4,10 @@
 #include <SPI.h>
 #include <avr/pgmspace.h>
 #include <Mouse.h>
-#include "DigitalIO.h"
+//#include "DigitalIO.h"
 //#define SOFTSPI
 #include "nRF24L01.h"
-#include "RF24.h"
+// #include "RF24.h"
 
 // TODO:
 // 1) Not important, but prediction of totally horizontal/vertical mouse movement so
@@ -17,7 +17,7 @@
 // 4) Figure out the digital io thing
 
 //PIN DECLARATIONS:
-const uint8_t MOUSE_IRQ = 3, MOUSE_SS = 5, RADIO_SS = 12, RADIO_IRQ = 2, 
+const uint8_t MOUSE_IRQ = 3, MOUSE_SS = 5, RADIO_SS = 12, RADIO_IRQ = 2,
               RADIO_CE = 13; //THE CE is for TX/RX
 //In order of pinky -> thumb
 const uint8_t FINGER_PINS[5] = {11,10,9,8,6};
@@ -27,7 +27,7 @@ const uint8_t SOFT_SPI_MOSI_PIN_MOUSE = 16;
 const uint8_t SOFT_SPI_SCK_PIN_MOUSE  = 15;
 const uint8_t SPI_MODE_MOUSE = 3;
 
-RF24 radio(RADIO_CE, RADIO_SS);
+//RF24 radio(RADIO_CE, RADIO_SS);
 
 // MOUSE STUFF *************************************************************
 // Registers
@@ -41,7 +41,7 @@ RF24 radio(RADIO_CE, RADIO_SS);
 #define REG_SQUAL                                0x07
 #define REG_Pixel_Sum                            0x08
 #define REG_Maximum_Pixel                        0x09
-#define REG_Minimum_Pixel  
+#define REG_Minimum_Pixel
 #define REG_Shutter_Lower                        0x0b
 #define REG_Shutter_Upper                        0x0c
 #define REG_Frame_Period_Lower                   0x0d
@@ -101,13 +101,13 @@ void adns_com_end(){
 
 byte adns_read_reg(byte reg_addr){
   adns_com_begin();
-  
+
   // send adress of the register, with MSBit = 0 to indicate it's a read
   SPI.transfer(reg_addr & 0x7f );
   delayMicroseconds(100); // tSRAD
   // read data
   byte data = SPI.transfer(0);
-  
+
   delayMicroseconds(1); // tSCLK-NCS for read operation is 120ns
   adns_com_end();
   delayMicroseconds(19); //  tSRW/tSRR (=20us) minus tSCLK-NCS
@@ -117,39 +117,39 @@ byte adns_read_reg(byte reg_addr){
 
 void adns_write_reg(byte reg_addr, byte data){
   adns_com_begin();
-  
+
   //send adress of the register, with MSBit = 1 to indicate it's a write
   SPI.transfer(reg_addr | 0x80 );
   //sent data
   SPI.transfer(data);
-  
+
   delayMicroseconds(20); // tSCLK-NCS for write operation
   adns_com_end();
-  delayMicroseconds(100); // tSWW/tSWR (=120us) minus tSCLK-NCS. Could be shortened, but is looks like a safe lower bound 
+  delayMicroseconds(100); // tSWW/tSWR (=120us) minus tSCLK-NCS. Could be shortened, but is looks like a safe lower bound
 }
 
 void adns_upload_firmware(){
   // send the firmware to the chip, cf p.18 of the datasheet
   // set the configuration_IV register in 3k firmware mode
-  adns_write_reg(REG_Configuration_IV, 0x02); // bit 1 = 1 for 3k mode, other bits are reserved 
-  
+  adns_write_reg(REG_Configuration_IV, 0x02); // bit 1 = 1 for 3k mode, other bits are reserved
+
   // write 0x1d in SROM_enable reg for initializing
-  adns_write_reg(REG_SROM_Enable, 0x1d); 
-  
+  adns_write_reg(REG_SROM_Enable, 0x1d);
+
   // wait for more than one frame period
   delay(10); // assume that the frame rate is as low as 100fps... even if it should never be that low
-  
+
   // write 0x18 to SROM_enable to start SROM download
-  adns_write_reg(REG_SROM_Enable, 0x18); 
-  
-  // write the SROM file (=firmware data) 
+  adns_write_reg(REG_SROM_Enable, 0x18);
+
+  // write the SROM file (=firmware data)
   adns_com_begin();
   SPI.transfer(REG_SROM_Load_Burst | 0x80); // write burst destination adress
   delayMicroseconds(15);
-  
+
   // send all bytes of the firmware
   unsigned char c;
-  for(int i = 0; i < firmware_length; i++){ 
+  for(int i = 0; i < firmware_length; i++){
     c = (unsigned char)pgm_read_byte(firmware_data + i);
     SPI.transfer(c);
     delayMicroseconds(15);
@@ -179,7 +179,7 @@ void performStartup(void){
   // change the reserved bytes (like by writing 0x00...) it would not work.
   byte laser_ctrl0 = adns_read_reg(REG_LASER_CTRL0);
   adns_write_reg(REG_LASER_CTRL0, laser_ctrl0 & 0xf0 );
-  
+
   delay(1);
 
 }
@@ -206,8 +206,8 @@ void dispRegisters(void){
     Serial.println(oregname[rctr]);
     Serial.println(oreg[rctr],HEX);
     regres = SPI.transfer(0);
-    Serial.println(regres,BIN);  
-    Serial.println(regres,HEX);  
+    Serial.println(regres,BIN);
+    Serial.println(regres,HEX);
     delay(1);
   }
   digitalWrite(MOUSE_SS,HIGH);
@@ -301,7 +301,6 @@ const uint16_t RIGHT_CLICK = 0b0000000100;
 uint8_t buf[8] = { 0 }; /* Keyboard report buffer */
 
 
-  int foo = 0;
 // the setup function runs once when you press reset or power the board
 void setup() {
   //  initialize digital pin LED_BUILTIN as an output.
@@ -313,15 +312,15 @@ void setup() {
   //Mouse setup
   pinMode (MOUSE_SS, OUTPUT);
   SPI.begin();
-  performStartup();  
+  performStartup();
   dispRegisters();
   delay(100);
 
-//  radio.begin(&foo);
-//  // args = [pipe#, pipe_address]
-//  radio.openReadingPipe(1, pipe);
-//  radio.startListening();
-  //attachInterrupt(digitalPinToInterrupt(RADIO_IRQ), check_radio, FALLING);
+ // radio.begin();
+ // // args = [pipe#, pipe_address]
+ // radio.openReadingPipe(1, pipe);
+ // radio.startListening();
+ //attachInterrupt(digitalPinToInterrupt(RADIO_IRQ), check_radio, FALLING);
 }
 
 // Button values will be stored here
@@ -339,7 +338,7 @@ void check_and_move_mouse(){
   xydat[1] = (byte)adns_read_reg(REG_Delta_X_H);
   xydat[2] = (byte)adns_read_reg(REG_Delta_Y_L);
   xydat[3] = (byte)adns_read_reg(REG_Delta_Y_H);
-  digitalWrite(MOUSE_SS,HIGH);     
+  digitalWrite(MOUSE_SS,HIGH);
   //Reduce sensitivity at higher speeds
   if(abs(*deltax) != 1){
     *deltax = *deltax / 2;
@@ -352,8 +351,8 @@ void check_and_move_mouse(){
     Mouse.move(*deltax, *deltay, 0);
   }
 }
-//
-//void update_left_hand(){
+
+// void update_left_hand(){
 //  bool tx, fail, rx;
 //  radio.whatHappened(tx, fail, rx);
 //
@@ -364,12 +363,12 @@ void check_and_move_mouse(){
 //  if(rx){
 //    radio.read(&left_hand_fingers, sizeof(left_hand_fingers));
 //  }
-//}
+// }
 
 void loop() {
   check_and_move_mouse();
- // update_left_hand();
-  
+  //update_left_hand();
+
   current_key = 0;
   //Read the values of the fingers and put them in current_key
   for(int index = 0; index < 5; ++index){
@@ -394,7 +393,7 @@ void loop() {
   if((FUNCTION & current_key) == FUNCTION){
     // TODO: Figure out function key
     // Potential fix: Double click shift and delete?
-  } 
+  }
   else{
     if((CTRL & current_key) == CTRL){
      Keyboard.press(KEY_LEFT_CTRL);
@@ -408,7 +407,7 @@ void loop() {
   }
 
   press_key();
-  
+
   last_key = current_key;
 }
 
@@ -423,7 +422,7 @@ void press_key(){
       time = micros() + PAUSE_AFTER_PRESS;
       first_time = false;
     } else{
-      time = micros() + PAUSE_BETWEEN_HOLD; 
+      time = micros() + PAUSE_BETWEEN_HOLD;
     }
   }
   else{
@@ -548,7 +547,7 @@ void send_key(){
   else if(current_key_removed == TAB){
     Keyboard.press(KEY_TAB);
     Keyboard.release(KEY_TAB);
-  } 
+  }
   else if(current_key_removed == SPACE){
     Keyboard.press(' ');
     Keyboard.release(' ');
@@ -651,7 +650,7 @@ void send_key(){
   }
   else if(current_key_removed == LEFT_CLICK){
     Mouse.press(MOUSE_LEFT);
-  } 
+  }
   else if(current_key_removed == RIGHT_CLICK){
     Mouse.press(MOUSE_RIGHT);
   }
