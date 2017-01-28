@@ -13,17 +13,17 @@ RF24 radio(CE, CSN);
 
 const uint64_t pipe = 0xE8E8F0F0E1LL;
 int button = 7;
-
-void setup(void){
+bool start;
+void setup(){
  Serial.begin(9600);
- radio.begin();
+ start = radio.begin();
  radio.openWritingPipe(pipe);
 }
  
  
-void loop(void){
- if (digitalRead(button) == HIGH){
-   radio.write(&msg, sizeof(msg));
-   ++msg;
- }
+void loop(){
+  delay(500);
+  bool returned = radio.write(&msg, sizeof(msg));
+  Serial.println(returned);
+  ++msg;
 }
