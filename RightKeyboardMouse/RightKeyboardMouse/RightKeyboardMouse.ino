@@ -6,6 +6,7 @@
 #include <Mouse.h>
 #include "DigitalIO.h"
 #define SOFTSPI
+#define SPI_HAS_TRANSACTION
 #include "nRF24L01.h"
 #include "RF24.h"
 
@@ -340,6 +341,7 @@ void setup() {
  // args = [pipe#, pipe_address]
  radio.openReadingPipe(1, pipe);
  radio.startListening();
+ SPI.usingInterrupt(digitalPinToInterrupt(RADIO_IRQ));
  attachInterrupt(digitalPinToInterrupt(RADIO_IRQ), check_radio, FALLING);
 }
 
