@@ -58,7 +58,7 @@ volatile byte xydat[4];
 int16_t * x = (int16_t *) &xydat[0];
 int16_t * y = (int16_t *) &xydat[2];
 volatile bool has_moved = false;
-const int ncs = 12;
+const int ncs = 5;
 
 extern const unsigned short firmware_length;
 extern const unsigned char firmware_data[];
@@ -68,7 +68,7 @@ void setup() {
   
   pinMode (ncs, OUTPUT);
   
-  attachInterrupt(digitalPinToInterrupt(1), UpdatePointer, FALLING);
+  attachInterrupt(digitalPinToInterrupt(3), UpdatePointer, FALLING);
   
   SPI.begin();
   SPI.setDataMode(SPI_MODE3);

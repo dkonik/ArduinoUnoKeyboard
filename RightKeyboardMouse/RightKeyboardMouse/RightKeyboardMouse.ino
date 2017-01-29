@@ -4,10 +4,10 @@
 #include <SPI.h>
 #include <avr/pgmspace.h>
 #include <Mouse.h>
-//#include "DigitalIO.h"
-//#define SOFTSPI
+#include "DigitalIO.h"
+#define SOFTSPI
 #include "nRF24L01.h"
-// #include "RF24.h"
+#include "RF24.h"
 
 // TODO:
 // 1) Not important, but prediction of totally horizontal/vertical mouse movement so
@@ -27,7 +27,7 @@ const uint8_t SOFT_SPI_MOSI_PIN_MOUSE = 16;
 const uint8_t SOFT_SPI_SCK_PIN_MOUSE  = 15;
 const uint8_t SPI_MODE_MOUSE = 3;
 
-//RF24 radio(RADIO_CE, RADIO_SS);
+RF24 radio(RADIO_CE, RADIO_SS);
 
 // MOUSE STUFF *************************************************************
 // Registers
@@ -184,6 +184,21 @@ void performStartup(void){
 
 }
 
+void check_radio(){
+  bool tx, fail, rx;
+  Serial.println("hi");
+  radio.whatHappened(tx, fail, rx);
+
+  // Will ignore fail and tx because we will never send
+  // from this hand
+
+  // Message was received
+  if(rx){
+    radio.read(&left_hand_fingers, sizeof(left_hand_fingers));
+  }
+}
+
+
 //
 //void UpdatePointer(void){
 //  has_moved = true;
@@ -303,6 +318,12 @@ uint8_t buf[8] = { 0 }; /* Keyboard report buffer */
 
 // the setup function runs once when you press reset or power the board
 void setup() {
+  //Prevent interference with SPI devices
+  pinMode (MOUSE_SS, OUTPUT);
+  digitalWrite(MOUSE_SS, HIGH);
+  pinMode(RADIO_SS, OUTPUT);
+  digitalWrite(RADIO_SS,HIGH);
+
   //  initialize digital pin LED_BUILTIN as an output.
   Serial.begin(9600);
   Keyboard.begin();
@@ -310,17 +331,16 @@ void setup() {
   delay(200);
 
   //Mouse setup
-  pinMode (MOUSE_SS, OUTPUT);
   SPI.begin();
   performStartup();
   dispRegisters();
   delay(100);
 
- // radio.begin();
- // // args = [pipe#, pipe_address]
- // radio.openReadingPipe(1, pipe);
- // radio.startListening();
- //attachInterrupt(digitalPinToInterrupt(RADIO_IRQ), check_radio, FALLING);
+ radio.begin();
+ // args = [pipe#, pipe_address]
+ radio.openReadingPipe(1, pipe);
+ radio.startListening();
+ attachInterrupt(digitalPinToInterrupt(RADIO_IRQ), check_radio, FALLING);
 }
 
 // Button values will be stored here
@@ -347,27 +367,13 @@ void check_and_move_mouse(){
     *deltay = *deltay / 2;
   }
   if(*deltax != 0 || *deltay != 0){
-    Serial.print("here");
     Mouse.move(*deltax, *deltay, 0);
   }
 }
 
-// void update_left_hand(){
-//  bool tx, fail, rx;
-//  radio.whatHappened(tx, fail, rx);
-//
-//  // Will ignore fail and tx because we will never send
-//  // from this hand
-//
-//  // Message was received
-//  if(rx){
-//    radio.read(&left_hand_fingers, sizeof(left_hand_fingers));
-//  }
-// }
 
 void loop() {
-  check_and_move_mouse();
-  //update_left_hand();
+  //check_and_move_mouse();
 
   current_key = 0;
   //Read the values of the fingers and put them in current_key
@@ -376,6 +382,7 @@ void loop() {
   }
   current_key = current_key | (left_hand_fingers << 5);
 
+    Serial.println(current_key,BIN);
 
   remove_index = 2;
   //No key is being pushed
