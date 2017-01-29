@@ -1,5 +1,3 @@
-#include <Arduino.h>
-
 // the firmeware that is uploaded in the ADNS each time it boots
 
 #include <avr/pgmspace.h>

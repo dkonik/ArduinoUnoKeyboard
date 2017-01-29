@@ -359,6 +359,7 @@ void check_and_move_mouse(){
   xydat[2] = (byte)adns_read_reg(REG_Delta_Y_L);
   xydat[3] = (byte)adns_read_reg(REG_Delta_Y_H);
   digitalWrite(MOUSE_SS,HIGH);
+  SPI.endTransaction();
   //Reduce sensitivity at higher speeds
   if(abs(*deltax) != 1){
     *deltax = *deltax / 2;
@@ -373,7 +374,7 @@ void check_and_move_mouse(){
 
 
 void loop() {
-  //check_and_move_mouse();
+  check_and_move_mouse();
 
   current_key = 0;
   //Read the values of the fingers and put them in current_key
