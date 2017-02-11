@@ -5,8 +5,8 @@
 #include <avr/pgmspace.h>
 #include <Mouse.h>
 #include "DigitalIO.h"
-#define SOFTSPI
-#define SPI_HAS_TRANSACTION
+// #define SOFTSPI
+// #define SPI_HAS_TRANSACTION
 #include "nRF24L01.h"
 #include "RF24.h"
 
@@ -28,7 +28,7 @@ const uint8_t SOFT_SPI_MOSI_PIN_MOUSE = 16;
 const uint8_t SOFT_SPI_SCK_PIN_MOUSE  = 15;
 const uint8_t SPI_MODE_MOUSE = 3;
 
-RF24 radio(RADIO_CE, RADIO_SS);
+//RF24 radio(RADIO_CE, RADIO_SS);
 
 // MOUSE STUFF *************************************************************
 // Registers
@@ -185,19 +185,19 @@ void performStartup(void){
 
 }
 
-void check_radio(){
-  bool tx, fail, rx;
-  Serial.println("hi");
-  radio.whatHappened(tx, fail, rx);
-
-  // Will ignore fail and tx because we will never send
-  // from this hand
-
-  // Message was received
-  if(rx){
-    radio.read(&left_hand_fingers, sizeof(left_hand_fingers));
-  }
-}
+// void check_radio(){
+//   bool tx, fail, rx;
+//   Serial.println("hi");
+//   radio.whatHappened(tx, fail, rx);
+//
+//   // Will ignore fail and tx because we will never send
+//   // from this hand
+//
+//   // Message was received
+//   if(rx){
+//     radio.read(&left_hand_fingers, sizeof(left_hand_fingers));
+//   }
+// }
 
 
 //
@@ -337,12 +337,12 @@ void setup() {
   dispRegisters();
   delay(100);
 
- radio.begin();
- // args = [pipe#, pipe_address]
- radio.openReadingPipe(1, pipe);
- radio.startListening();
- SPI.usingInterrupt(digitalPinToInterrupt(RADIO_IRQ));
- attachInterrupt(digitalPinToInterrupt(RADIO_IRQ), check_radio, FALLING);
+ // radio.begin();
+ // // args = [pipe#, pipe_address]
+ // radio.openReadingPipe(1, pipe);
+ // radio.startListening();
+ // SPI.usingInterrupt(digitalPinToInterrupt(RADIO_IRQ));
+ // attachInterrupt(digitalPinToInterrupt(RADIO_IRQ), check_radio, FALLING);
 }
 
 // Button values will be stored here
