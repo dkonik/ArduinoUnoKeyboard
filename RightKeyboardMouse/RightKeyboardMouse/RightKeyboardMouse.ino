@@ -23,10 +23,12 @@ const uint8_t MOUSE_IRQ = 3, MOUSE_SS = 5, RADIO_SS = 12, RADIO_IRQ = 2,
 //In order of pinky -> thumb
 const uint8_t FINGER_PINS[5] = {11,10,9,8,6};
 
-const uint8_t SOFT_SPI_MISO_PIN_MOUSE = 14;
-const uint8_t SOFT_SPI_MOSI_PIN_MOUSE = 16;
-const uint8_t SOFT_SPI_SCK_PIN_MOUSE  = 15;
+const uint8_t SOFT_SPI_MISO_PIN_MOUSE = 0;
+const uint8_t SOFT_SPI_MOSI_PIN_MOUSE = 1;
+const uint8_t SOFT_SPI_SCK_PIN_MOUSE  = 7;
 const uint8_t SPI_MODE_MOUSE = 3;
+
+SoftSPI<SOFT_SPI_MISO_PIN_MOUSE, SOFT_SPI_MOSI_PIN_MOUSE, SOFT_SPI_SCK_PIN_MOUSE, SPI_MODE_MOUSE> soft_mouse_spi;
 
 //RF24 radio(RADIO_CE, RADIO_SS);
 
@@ -104,10 +106,10 @@ byte adns_read_reg(byte reg_addr){
   adns_com_begin();
 
   // send adress of the register, with MSBit = 0 to indicate it's a read
-  SPI.transfer(reg_addr & 0x7f );
+  soft_mouse_spi.transfer(reg_addr & 0x7f );
   delayMicroseconds(100); // tSRAD
   // read data
-  byte data = SPI.transfer(0);
+  byte data = soft_mouse_spi.transfer(0);
 
   delayMicroseconds(1); // tSCLK-NCS for read operation is 120ns
   adns_com_end();
@@ -120,9 +122,9 @@ void adns_write_reg(byte reg_addr, byte data){
   adns_com_begin();
 
   //send adress of the register, with MSBit = 1 to indicate it's a write
-  SPI.transfer(reg_addr | 0x80 );
+  soft_mouse_spi.transfer(reg_addr | 0x80 );
   //sent data
-  SPI.transfer(data);
+  soft_mouse_spi.transfer(data);
 
   delayMicroseconds(20); // tSCLK-NCS for write operation
   adns_com_end();
@@ -145,14 +147,14 @@ void adns_upload_firmware(){
 
   // write the SROM file (=firmware data)
   adns_com_begin();
-  SPI.transfer(REG_SROM_Load_Burst | 0x80); // write burst destination adress
+  soft_mouse_spi.transfer(REG_SROM_Load_Burst | 0x80); // write burst destination adress
   delayMicroseconds(15);
 
   // send all bytes of the firmware
   unsigned char c;
   for(int i = 0; i < firmware_length; i++){
     c = (unsigned char)pgm_read_byte(firmware_data + i);
-    SPI.transfer(c);
+    soft_mouse_spi.transfer(c);
     delayMicroseconds(15);
   }
   adns_com_end();
@@ -216,12 +218,12 @@ void dispRegisters(void){
 
   int rctr=0;
   for(rctr=0; rctr<4; rctr++){
-    SPI.transfer(oreg[rctr]);
+    soft_mouse_spi.transfer(oreg[rctr]);
     delay(1);
     Serial.println("---");
     Serial.println(oregname[rctr]);
     Serial.println(oreg[rctr],HEX);
-    regres = SPI.transfer(0);
+    regres = soft_mouse_spi.transfer(0);
     Serial.println(regres,BIN);
     Serial.println(regres,HEX);
     delay(1);
@@ -332,7 +334,7 @@ void setup() {
   delay(200);
 
   //Mouse setup
-  SPI.begin();
+  soft_mouse_spi.begin();
   performStartup();
   dispRegisters();
   delay(100);
@@ -354,14 +356,14 @@ uint16_t last_key = 0;
 unsigned remove_index = 2;
 
 void check_and_move_mouse(){
-  SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE3));
+  // SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE3));
   digitalWrite(MOUSE_SS,LOW);
   xydat[0] = (byte)adns_read_reg(REG_Delta_X_L);
   xydat[1] = (byte)adns_read_reg(REG_Delta_X_H);
   xydat[2] = (byte)adns_read_reg(REG_Delta_Y_L);
   xydat[3] = (byte)adns_read_reg(REG_Delta_Y_H);
   digitalWrite(MOUSE_SS,HIGH);
-  SPI.endTransaction();
+  // SPI.endTransaction();
   //Reduce sensitivity at higher speeds
   if(abs(*deltax) != 1){
     *deltax = *deltax / 2;
