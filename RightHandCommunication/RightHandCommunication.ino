@@ -1,14 +1,15 @@
 // Using Leonardo
+#define SOFTSPI
 #include <SPI.h>
 #include "nRF24L01.h"
 #include "RF24.h"
-
+#include "DigitalIO.h"
 const int CE = 13;
 const int CSN = 12;
 const int IRQ = 2;
 const int MOUSE_SS = 5;
 
-uint16_t msg;
+uint8_t msg;
 
 // Args = [ce_pin, csn_pin]
 RF24 radio(CE, CSN);
@@ -24,7 +25,7 @@ void check_radio(){
   Serial.println("recvd");
   if(rx){
     radio.read(&msg, sizeof(msg));
-    Serial.println(msg);
+    Serial.println(msg, BIN);
   }
 }
 

@@ -1,11 +1,10 @@
 #include <Arduino.h>
 
 #include "Keyboard.h"
-#include <SPI.h>
 #include <avr/pgmspace.h>
 #include <Mouse.h>
 #include "DigitalIO.h"
-// #define SOFTSPI
+#define SOFTSPI
 // #define SPI_HAS_TRANSACTION
 #include "nRF24L01.h"
 #include "RF24.h"
@@ -30,7 +29,7 @@ const uint8_t SPI_MODE_MOUSE = 3;
 
 SoftSPI<SOFT_SPI_MISO_PIN_MOUSE, SOFT_SPI_MOSI_PIN_MOUSE, SOFT_SPI_SCK_PIN_MOUSE, SPI_MODE_MOUSE> soft_mouse_spi;
 
-//RF24 radio(RADIO_CE, RADIO_SS);
+RF24 radio(RADIO_CE, RADIO_SS);
 
 // MOUSE STUFF *************************************************************
 // Registers
@@ -187,19 +186,21 @@ void performStartup(void){
 
 }
 
-// void check_radio(){
-//   bool tx, fail, rx;
-//   Serial.println("hi");
-//   radio.whatHappened(tx, fail, rx);
-//
-//   // Will ignore fail and tx because we will never send
-//   // from this hand
-//
-//   // Message was received
-//   if(rx){
-//     radio.read(&left_hand_fingers, sizeof(left_hand_fingers));
-//   }
-// }
+void check_radio(){
+  bool tx, fail, rx;
+  Serial.println("hi");
+  radio.whatHappened(tx, fail, rx);
+  Serial.println("here");
+
+  // Will ignore fail and tx because we will never send
+  // from this hand
+
+  // Message was received
+  if(rx){
+    radio.read(&left_hand_fingers, sizeof(left_hand_fingers));
+    Serial.println(left_hand_fingers, BIN);
+  }
+}
 
 
 //
@@ -339,12 +340,12 @@ void setup() {
   dispRegisters();
   delay(100);
 
- // radio.begin();
- // // args = [pipe#, pipe_address]
- // radio.openReadingPipe(1, pipe);
- // radio.startListening();
+ radio.begin();
+ // args = [pipe#, pipe_address]
+ radio.openReadingPipe(1, pipe);
+ radio.startListening();
  // SPI.usingInterrupt(digitalPinToInterrupt(RADIO_IRQ));
- // attachInterrupt(digitalPinToInterrupt(RADIO_IRQ), check_radio, FALLING);
+ attachInterrupt(digitalPinToInterrupt(RADIO_IRQ), check_radio, LOW);
 }
 
 // Button values will be stored here
@@ -387,7 +388,7 @@ void loop() {
   }
   current_key = current_key | (left_hand_fingers << 5);
 
-    Serial.println(current_key,BIN);
+    // Serial.println(current_key,BIN);
 
   remove_index = 2;
   //No key is being pushed
