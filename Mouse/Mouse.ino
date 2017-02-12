@@ -217,7 +217,7 @@ void burst_read(int* xy_data){
 
   delayMicroseconds(100); //Wait for one frame 
 }
-  
+
 void loop() {
  if(has_moved){
     has_moved = false;
