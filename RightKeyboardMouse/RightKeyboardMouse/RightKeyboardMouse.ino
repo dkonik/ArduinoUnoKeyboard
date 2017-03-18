@@ -30,7 +30,6 @@ const uint8_t SPI_MODE_MOUSE = 3;
 SoftSPI<SOFT_SPI_MISO_PIN_MOUSE, SOFT_SPI_MOSI_PIN_MOUSE, SOFT_SPI_SCK_PIN_MOUSE, SPI_MODE_MOUSE> soft_mouse_spi;
 
 RF24 radio(RADIO_CE, RADIO_SS);
-
 // MOUSE STUFF *************************************************************
 // Registers
 #define REG_Product_ID                           0x00
@@ -202,11 +201,6 @@ void check_radio(){
   }
 }
 
-
-//
-//void UpdatePointer(void){
-//  has_moved = true;
-//}
 
 void dispRegisters(void){
   int oreg[7] = {

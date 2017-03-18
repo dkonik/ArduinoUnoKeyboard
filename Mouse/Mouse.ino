@@ -69,7 +69,7 @@ void setup() {
   pinMode (ncs, OUTPUT);
   
   attachInterrupt(digitalPinToInterrupt(3), UpdatePointer, FALLING);
-  
+    
   SPI.begin();
   SPI.setDataMode(SPI_MODE3);
   SPI.setBitOrder(MSBFIRST);

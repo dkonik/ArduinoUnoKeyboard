@@ -30,8 +30,7 @@ void loop(void){
   }
 
   if(current_hand != last_hand){
-
-    radio.write(&current_hand, sizeof(current_hand));
+    Serial.println(radio.write(&current_hand, sizeof(current_hand)));
     last_hand = current_hand;
   }
 }
